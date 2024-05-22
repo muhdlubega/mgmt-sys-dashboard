@@ -1,0 +1,15 @@
+.user{
+    list-style-type: none;
+    opacity: 0.9;
+
+    &:hover {
+        opacity: 1;
+        transform: scale(1.05);
+        transition: all 0.1s ease-out;
+        cursor: pointer;
+    }
+
+    p {
+        margin: 12px 0 0;
+    }
+}

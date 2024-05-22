@@ -1,0 +1,26 @@
+.homepage{
+    width: 100vw;
+    height: 200vh;
+    position: relative;
+
+    &-background{
+        width: 100vw;
+    }
+
+    &-content{
+        text-align: right;
+        margin-right: 2vw;
+        top: 20px;
+        right: 0;
+        position: absolute;
+        font-size: 5vw;
+
+        h1 {
+            background: -webkit-linear-gradient(180deg, royalblue, rgb(138, 163, 239));
+            opacity: 0.8;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    }
+}

@@ -1,0 +1,43 @@
+.search-bar {
+    position: relative;
+    margin-top: 20px;
+  
+    input {
+      width: 90%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 5%;
+      width: 90%;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+  
+      .search-result {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+  
+        &:last-child {
+          border-bottom: none;
+        }
+  
+        p {
+          margin: 0;
+        }
+  
+        strong {
+          font-weight: bold;
+        }
+      }
+    }
+  }
+  
