@@ -1,33 +1,32 @@
 .user-profile {
-    .user-todos {
-      ul {
-        list-style: none;
-        padding: 0;
-      }
-  
-      .todo-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-  
-        .icon-completed {
-          color: green;
-          margin-right: 8px;
-        }
-  
-        .icon-not-completed {
-          color: red;
-          margin-right: 8px;
-        }
-  
-        .completed {
-          text-decoration: line-through;
-        }
-      }
+  .user-todos {
+    ul {
+      list-style: none;
+      padding: 0;
     }
-  
-    .user-posts {
-      margin-top: 20px;
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+
+      .icon-completed {
+        color: green;
+        margin-right: 8px;
+      }
+
+      .icon-not-completed {
+        color: red;
+        margin-right: 8px;
+      }
+
+      .completed {
+        text-decoration: line-through;
+      }
     }
   }
-  
+
+  .user-posts {
+    margin-top: 20px;
+  }
+}

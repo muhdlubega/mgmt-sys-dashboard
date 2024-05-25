@@ -1,15 +1,17 @@
-.post{
+.post {
     list-style-type: none;
     opacity: 0.9;
     background: lightsteelblue;
     margin: 20px;
     border-radius: 10px;
 
-    &:hover {
-        opacity: 1;
-        transform: scale(1.01);
-        transition: all 0.1s ease-out;
+    a {
         cursor: pointer;
+
+        &:hover {
+            opacity: 1;
+            transition: all 0.1s ease-out;
+        }
     }
 
     p {

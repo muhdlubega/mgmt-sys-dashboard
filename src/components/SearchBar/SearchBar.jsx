@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from "react";
-import { useData } from "../../context/DataContext";
-import "./SearchBar.scss";
 import { Link } from "react-router-dom";
+
+import { useData } from "../../context/DataContext";
+
+import "./SearchBar.scss";
 
 const SearchBar = () => {
   const { users, posts } = useData();
@@ -11,19 +13,23 @@ const SearchBar = () => {
     setQuery(e.target.value);
   };
 
+  const clearSearch = () => {
+    setQuery("");
+  };
+
   const filteredResults = useMemo(() => {
     if (query.length > 2) {
       const filteredUsers = users.filter(
         (user) =>
-          user.name.toLowerCase().includes(query.toLowerCase()) ||
-          user.username.toLowerCase().includes(query.toLowerCase()) ||
-          user.email.toLowerCase().includes(query.toLowerCase())
+          user.name?.toLowerCase().includes(query.toLowerCase()) ||
+          user.username?.toLowerCase().includes(query.toLowerCase()) ||
+          user.email?.toLowerCase().includes(query.toLowerCase())
       );
 
       const filteredPosts = posts.filter(
         (post) =>
-          post.title.toLowerCase().includes(query.toLowerCase()) ||
-          post.body.toLowerCase().includes(query.toLowerCase())
+          post.title?.toLowerCase().includes(query.toLowerCase()) ||
+          post.body?.toLowerCase().includes(query.toLowerCase())
       );
 
       return [...filteredUsers, ...filteredPosts];
@@ -39,6 +45,7 @@ const SearchBar = () => {
             to={`/post/${result.id}`}
             key={result.id}
             className="search-result"
+            onClick={clearSearch}
           >
             <p>
               <strong>Post:</strong> {result.title}
@@ -52,11 +59,13 @@ const SearchBar = () => {
             to={`/user/${result.id}`}
             key={result.id}
             className="search-result"
+            onClick={clearSearch}
           >
             <p>
-              <strong>User:</strong> {result.name} ({result.username})
+              <strong>User:</strong>{" "}
+              {result.name || result.email?.split("@")[0]}
             </p>
-            <p>{result.email}</p>
+            <p>({result.email})</p>
           </Link>
         );
       }

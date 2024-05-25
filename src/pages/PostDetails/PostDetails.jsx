@@ -1,19 +1,30 @@
-import React from "react";
-import { useParams } from "react-router-dom";
-import "./PostDetails.scss";
-import { useData } from "../../context/DataContext";
+import React, { useEffect } from "react";
 import { RandomAvatar } from "react-random-avatars";
-import { Error404 } from "../Error404";
+import { useNavigate, useParams } from "react-router-dom";
+
 import { Loader } from "../../components";
+import { useData } from "../../context/DataContext";
+import { Error404 } from "../Error404";
+
+import "./PostDetails.scss";
 
 const PostDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { comments, loading, posts, users } = useData();
   const postId = parseInt(id, 10);
 
   const post = posts.find((post) => post.id === postId);
   const user = post ? users.find((user) => user.id === post.userId) : null;
   const postComments = comments.filter((comment) => comment.postId === postId);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  const handleBackClick = () => {
+    navigate(-1);
+  };
 
   if (loading) {
     return <Loader />;
@@ -25,13 +36,19 @@ const PostDetails = () => {
 
   return (
     <div className="post-details">
+      <button onClick={handleBackClick} className="back-button">
+        Back
+      </button>
       <h1>{post.title}</h1>
       <p>{post.body}</p>
       {user && (
         <div className="user-details">
           <h2>User Details</h2>
-          <RandomAvatar name={user.name} size={96} />
-          <p>Name: {user.name}</p>
+          <RandomAvatar
+            name={user.name || user.email?.split("@")[0]}
+            size={96}
+          />
+          <p>Name: {user.name || user.email?.split("@")[0]}</p>
           <p>Username: {user.username}</p>
           <p>Email: {user.email}</p>
           <p>Phone: {user.phone}</p>

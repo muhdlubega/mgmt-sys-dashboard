@@ -1,13 +1,16 @@
 import React, {
   createContext,
-  useContext,
-  useState,
-  useEffect,
   useCallback,
+  useContext,
+  useEffect,
   useMemo,
+  useState,
 } from "react";
-import { removeStopwords } from "stopword";
 import axios from "axios";
+import { collection, getDocs } from "firebase/firestore";
+import { removeStopwords } from "stopword";
+
+import { db } from "../firebaseConfig";
 
 const CACHE_EXPIRATION_TIME = 1000 * 60 * 5;
 
@@ -49,9 +52,51 @@ export const DataProvider = ({ children }) => {
     }
   }, [cacheTime]);
 
+  const fetchFirestoreUsers = useCallback(async () => {
+    try {
+      const usersSnapshot = await getDocs(collection(db, "users"));
+      const firestoreUsers = usersSnapshot.docs.map((userDoc) => ({
+        id: userDoc.id,
+        ...userDoc.data(),
+      }));
+
+      for (const user of firestoreUsers) {
+        const todosSnapshot = await getDocs(
+          collection(db, "users", user.id, "todos")
+        );
+        const userTodos = todosSnapshot.docs.map((todoDoc) => ({
+          ...todoDoc.data(),
+          userId: user.id,
+          id: todoDoc.id,
+        }));
+        setTodos((prevTodos) => [...prevTodos, ...userTodos]);
+      }
+
+      setUsers((prevUsers) => {
+        const userIds = new Set(prevUsers.map((user) => user.id));
+        const combinedUsers = [...prevUsers];
+
+        firestoreUsers.forEach((user) => {
+          if (!userIds.has(user.id)) {
+            combinedUsers.push(user);
+            userIds.add(user.id);
+          }
+        });
+
+        return combinedUsers;
+      });
+    } catch (error) {
+      console.error("Error fetching Firestore users:", error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    fetchFirestoreUsers();
+  }, [fetchFirestoreUsers]);
 
   const getAverageCommentsPerPost = useCallback(() => {
     const postCommentCounts = posts.reduce((acc, post) => {
@@ -82,11 +127,13 @@ export const DataProvider = ({ children }) => {
       return acc;
     }, {});
 
-    const averages = users.map((user) => ({
-      userId: user.id,
-      name: user.name,
-      averageComments: userCommentCounts[user.id],
-    }));
+    const averages = users
+      .filter((user) => /^[0-9]+$/.test(user.id))
+      .map((user) => ({
+        userId: user.id,
+        name: user.name || user.email?.split("@")[0],
+        averageComments: userCommentCounts[user.id],
+      }));
 
     return averages;
   }, [users, posts, comments]);
@@ -127,7 +174,7 @@ export const DataProvider = ({ children }) => {
       const completedTodos = userTodos.filter((todo) => todo.completed).length;
       return {
         userId: user.id,
-        name: user.name,
+        name: user.name || user.email?.split("@")[0],
         completedTodos,
       };
     });
@@ -137,8 +184,7 @@ export const DataProvider = ({ children }) => {
     );
 
     return {
-      mostCompleted: sortedUsers.slice(0, 10),
-      leastCompleted: sortedUsers.slice(-10).reverse(),
+      mostCompleted: sortedUsers,
     };
   }, [users, todos]);
 

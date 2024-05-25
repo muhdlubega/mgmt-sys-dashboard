@@ -1,0 +1,57 @@
+.user-settings {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+
+    div {
+      margin-bottom: 10px;
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+
+      input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+    }
+
+    button {
+      padding: 10px 15px;
+      background: royalblue;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+
+      &:disabled {
+        background: grey;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .error {
+    color: red;
+    font-size: 0.875em;
+    margin-top: 0.25em;
+  }
+}

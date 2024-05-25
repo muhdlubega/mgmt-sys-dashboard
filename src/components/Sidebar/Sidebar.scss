@@ -1,0 +1,139 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 250px;
+  background: #fff;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: width 0.3s ease;
+  z-index: 1000;
+  overflow: hidden;
+
+  &.closed {
+    width: 80px;
+  }
+
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    box-shadow: 0 1px 3px -2px royalblue;
+
+    .hamburger {
+      font-size: 24px;
+      cursor: pointer;
+    }
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    &__title {
+      color: royalblue;
+      font-size: 18px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+
+      &:hover {
+        color: rgb(41, 77, 186);
+      }
+    }
+  }
+
+  .user-email {
+    font-size: 14px;
+    color: gray;
+    padding: 10px 20px;
+  }
+
+  .sidebar-menu {
+    list-style-type: none;
+    padding: 20px 0 0;
+    margin: 0;
+    color: gray;
+
+    li {
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.1s linear;
+
+      &:hover {
+        transform: translateY(-2px);
+        color: rgb(150, 177, 255);
+        cursor: pointer;
+      }
+
+      a {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .menu-icon {
+        font-size: 20px;
+      }
+
+      span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: opacity 0.3s ease;
+      }
+
+      .sidebar-dashline {
+        background: white;
+        border: none;
+        height: 2px;
+
+        &--active {
+          height: 2px;
+          border-radius: 10px;
+          width: 80%;
+          background: rgb(150, 177, 255);
+        }
+      }
+    }
+  }
+
+  .google-login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #db4437;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+
+    &:hover {
+      background-color: #c33c28;
+    }
+
+    svg {
+      margin-right: 8px;
+    }
+  }
+}
+
+.main-content {
+  @media screen and (min-width: 992px) {
+    transition: margin-left 0.3s ease;
+    margin-left: 80px;
+
+    &.shifted {
+      margin-left: 250px;
+    }
+  }
+}

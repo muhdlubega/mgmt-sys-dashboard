@@ -1,7 +1,9 @@
 import React from "react";
-import "./Users.scss";
+
 import { Loader, User } from "../../components";
 import { useData } from "../../context/DataContext";
+
+import "./Users.scss";
 
 const Users = () => {
   const { users, loading } = useData();

@@ -4,4 +4,5 @@ export * from "./Homepage";
 export * from "./PostDetails";
 export * from "./Posts";
 export * from "./UserProfile";
+export * from "./UserSettings";
 export * from "./Users";

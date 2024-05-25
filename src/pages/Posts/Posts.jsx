@@ -1,7 +1,9 @@
-import React, { useState, useMemo } from "react";
-import "./Posts.scss";
-import { useData } from "../../context/DataContext";
+import React, { useMemo, useState } from "react";
+
 import { Loader, Post } from "../../components";
+import { useData } from "../../context/DataContext";
+
+import "./Posts.scss";
 
 const POSTS_PER_PAGE = 10;
 
@@ -33,6 +35,7 @@ const Posts = () => {
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (loading) {
@@ -49,11 +52,13 @@ const Posts = () => {
           onChange={handleUserChange}
         >
           <option value="all">All Users</option>
-          {users.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.name}
-            </option>
-          ))}
+          {users
+            .filter((user) => /^[0-9]+$/.test(user.id))
+            .map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name || user.email?.split("@")[0]}
+              </option>
+            ))}
         </select>
       </div>
       <div className="posts-list">

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import "./Post.scss";
 import { Link } from "react-router-dom";
+
+import "./Post.scss";
 
 const Post = ({ post, users, comments }) => {
   const [showComments, setShowComments] = useState(false);
@@ -8,10 +9,13 @@ const Post = ({ post, users, comments }) => {
   const postComments = comments.filter((comment) => comment.postId === post.id);
 
   return (
-    <Link to={`/post/${post.id}`} className="post" key={post.id}>
-      <p>{post.title}</p>
-
-      <p>{post.body}</p>
+    <div className="post" key={post.id}>
+      <Link to={`/post/${post.id}`}>
+        <h4>{post.title}</h4>
+      </Link>
+      <Link to={`/post/${post.id}`}>
+        <p>{post.body}</p>
+      </Link>
       {user && (
         <div className="post-user">
           <h3>Posted by:</h3>
@@ -29,7 +33,7 @@ const Post = ({ post, users, comments }) => {
         <div className="post-comments">
           <h3>Comments:</h3>
           {postComments.length > 0 ? (
-            postComments.map((comment) => (
+            postComments.slice(3).map((comment) => (
               <div key={comment.id}>
                 <p>{comment.name}</p>
                 <p>{comment.email}</p>
@@ -39,9 +43,12 @@ const Post = ({ post, users, comments }) => {
           ) : (
             <p>No comments found.</p>
           )}
+          <Link to={`/post/${post.id}`}>
+            <p>See more...</p>
+          </Link>
         </div>
       )}
-    </Link>
+    </div>
   );
 };
 
