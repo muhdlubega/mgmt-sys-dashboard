@@ -6,9 +6,10 @@ import {
   FaTachometerAlt,
   FaUsers,
 } from "react-icons/fa";
+import { FaGear } from "react-icons/fa6";
 import { RiLogoutCircleFill } from "react-icons/ri";
 import { RandomAvatar } from "react-random-avatars";
-import { Link } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 import { SearchBar } from "../SearchBar";
@@ -16,12 +17,18 @@ import { SearchBar } from "../SearchBar";
 import "./Sidebar.scss";
 
 const Sidebar = ({ children }) => {
-  const { user, loading, signInWithGoogle, handleLogout, onClose } = useAuth();
+  const { firestoreUser, loading, signInWithGoogle, handleLogout, onClose } =
+    useAuth();
   const [isOpen, setIsOpen] = useState(window.innerWidth > 992 ? true : false);
+  const location = useLocation();
 
   const handleGoogleLogin = async () => {
     await signInWithGoogle();
     onClose();
+  };
+
+  const isActive = (path) => {
+    return location.pathname === path ? "active" : "";
   };
 
   return (
@@ -35,50 +42,58 @@ const Sidebar = ({ children }) => {
               </p>
             )}
           </Link>
-          <FaBars className="hamburger" onClick={() => setIsOpen(!isOpen)} />
+          <FaBars
+            size={24}
+            className="hamburger"
+            onClick={() => setIsOpen(!isOpen)}
+          />
         </div>
-        {user && (
-          <Link to={`/user/${user.uid}`} className="user-email">
+        {firestoreUser && (
+          <Link to={`/user/${firestoreUser.uid}`} className="user-email">
             <RandomAvatar
-              name={user.name || user.email?.split("@")[0]}
+              name={firestoreUser.name || firestoreUser.email?.split("@")[0]}
               size={24}
             />
-            {isOpen && <span>{user.name || user.email?.split("@")[0]}</span>}
+            {isOpen && (
+              <span>
+                {firestoreUser.name || firestoreUser.email?.split("@")[0]}
+              </span>
+            )}
           </Link>
         )}
-        <SearchBar />
+        <SearchBar isOpen={isOpen} setIsOpen={setIsOpen} />
         <ul className="sidebar-menu">
-          <li>
+          <li className={isActive("/")}>
             <Link to="/">
-              <FaTachometerAlt className="menu-icon" />
+              <FaTachometerAlt className="menu-icon" size={24} />
               {isOpen && <span>Dashboard</span>}
             </Link>
           </li>
-          <li>
+          <li className={isActive("/users")}>
             <Link to="/users">
-              <FaUsers className="menu-icon" />
+              <FaUsers className="menu-icon" size={24} />
               {isOpen && <span>Users</span>}
             </Link>
           </li>
-          <li>
+          <li className={isActive("/posts")}>
             <Link to="/posts">
-              <FaClipboard className="menu-icon" />
+              <FaClipboard className="menu-icon" size={24} />
               {isOpen && <span>Posts</span>}
             </Link>
           </li>
-          {user && (
-            <li>
+          {firestoreUser && (
+            <li className={isActive("/settings")}>
               <Link to="/settings">
-                <FaClipboard className="menu-icon" />
+                <FaGear className="menu-icon" size={24} />
                 {isOpen && <span>Settings</span>}
               </Link>
             </li>
           )}
         </ul>
-        {user ? (
-          <button onClick={handleLogout}>
-            <RiLogoutCircleFill color="blue" size={24} />
-            {isOpen && <span>Logout</span>}
+        {firestoreUser ? (
+          <button className="sidebar-logout" onClick={handleLogout}>
+            <RiLogoutCircleFill color="white" size={26} />
+            {isOpen && <span className="sidebar-logout__text">Logout</span>}
           </button>
         ) : (
           <button
@@ -86,8 +101,12 @@ const Sidebar = ({ children }) => {
             disabled={loading}
             className="google-login-button"
           >
-            <FaGoogle />
-            {isOpen && (loading ? "Loading..." : "Login with Google")}
+            <FaGoogle size={22} />
+            {isOpen && (
+              <p className="google-login-button__text">
+                {loading ? "Loading..." : "Login with Google"}
+              </p>
+            )}
           </button>
         )}
       </div>

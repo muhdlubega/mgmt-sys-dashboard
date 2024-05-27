@@ -9,28 +9,36 @@
   transition: width 0.3s ease;
   z-index: 1000;
   overflow: hidden;
+  background-color: #30353c;
 
   &.closed {
-    width: 80px;
+    width: 60px;
   }
 
-  .sidebar-header {
+  &-header {
+    height: 60px;
     display: flex;
-    justify-content: space-between;
+    gap: 10px;
     align-items: center;
-    padding: 10px;
-    box-shadow: 0 1px 3px -2px royalblue;
+    justify-content: space-between;
+    padding: 0 20px 0 10px;
+    box-shadow: 0 1px 3px -2px #616b78;
 
     .hamburger {
-      font-size: 24px;
       cursor: pointer;
+      color: royalblue;
+
+      &:hover{
+        color: rgb(41, 77, 186);
+      }
     }
   }
 
-  .sidebar-logo {
+  &-logo {
     display: flex;
     align-items: center;
     gap: 4px;
+    text-decoration: none;
 
     &__title {
       color: royalblue;
@@ -47,16 +55,29 @@
   }
 
   .user-email {
-    font-size: 14px;
-    color: gray;
-    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: #616b78;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 20px 20px 0;
+    overflow: hidden;
+    transition: all 0.1s linear;
+
+    &:hover {
+      transform: translateY(-2px);
+      color: royalblue;
+      opacity: 0.8;
+    }
   }
 
-  .sidebar-menu {
+  &-menu {
     list-style-type: none;
     padding: 20px 0 0;
     margin: 0;
-    color: gray;
+    color: #616b78;
 
     li {
       padding: 10px 20px;
@@ -65,9 +86,14 @@
       gap: 10px;
       transition: all 0.1s linear;
 
-      &:hover {
+      &:first-child {
+        padding-top: 0;
+      }
+
+      &:hover,
+      &.active {
         transform: translateY(-2px);
-        color: rgb(150, 177, 255);
+        color: royalblue;
         cursor: pointer;
       }
 
@@ -80,6 +106,7 @@
 
       .menu-icon {
         font-size: 20px;
+        margin-right: 10px;
       }
 
       span {
@@ -88,19 +115,30 @@
         text-overflow: ellipsis;
         transition: opacity 0.3s ease;
       }
+    }
+  }
 
-      .sidebar-dashline {
-        background: white;
-        border: none;
-        height: 2px;
+  &-logout{
+    background-color: royalblue;
+    outline: none;
+    border: none;
+    width: 90%;
+    margin: 10px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: white;
 
-        &--active {
-          height: 2px;
-          border-radius: 10px;
-          width: 80%;
-          background: rgb(150, 177, 255);
-        }
-      }
+    &__text {
+      margin: 0 10px;
+    }
+
+    &:hover {
+      background-color: rgb(41, 77, 186);
     }
   }
 
@@ -109,29 +147,30 @@
     align-items: center;
     justify-content: center;
     background-color: #db4437;
+    width: 90%;
     color: white;
     padding: 10px;
     border: none;
+    margin: 10px;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    margin-top: 10px;
 
     &:hover {
       background-color: #c33c28;
     }
 
-    svg {
-      margin-right: 8px;
+    &__text {
+      margin: 0 10px;
     }
   }
 }
 
 .main-content {
-  @media screen and (min-width: 992px) {
     transition: margin-left 0.3s ease;
-    margin-left: 80px;
-
+    margin-left: 60px;
+    
+    @media screen and (min-width: 992px) {
     &.shifted {
       margin-left: 250px;
     }

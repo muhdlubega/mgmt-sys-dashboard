@@ -24,6 +24,7 @@ const Posts = () => {
     return posts.filter((post) => post.userId === parseInt(selectedUser, 10));
   }, [selectedUser, posts]);
 
+  // Pagination set to display only 10 posts per page without having to refetch data on page switching
   const paginatedPosts = useMemo(() => {
     const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
     return filteredPosts.slice(startIndex, startIndex + POSTS_PER_PAGE);
@@ -45,7 +46,7 @@ const Posts = () => {
   return (
     <div className="posts">
       <div className="filter-container">
-        <label htmlFor="userFilter">Filter by User:</label>
+        <label htmlFor="userFilter">Filter by User</label>
         <select
           id="userFilter"
           value={selectedUser}

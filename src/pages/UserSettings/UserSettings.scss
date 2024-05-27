@@ -2,8 +2,7 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
-  background: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  color: #616b78;
 
   h2 {
     text-align: center;
@@ -14,21 +13,33 @@
     display: flex;
     flex-direction: column;
 
-    div {
+    .user-settings__field {
       margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
 
-      label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-      }
-
-      input {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+      div{
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        justify-content: flex-end;
+        
+        label {
+          display: block;
+          margin-bottom: 5px;
+          font-weight: bold;
+        }
+        
+        input {
+          padding: 8px;
+          box-sizing: border-box;
+          border: 1px solid #616b78;
+          border-radius: 4px;
+          background-color: #2a2e34;
+          color: #616b78;
+          flex: 2;
+        
+        }
       }
     }
 

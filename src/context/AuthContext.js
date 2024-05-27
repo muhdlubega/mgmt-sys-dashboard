@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useMemo,
 } from "react";
 import {
   getRedirectResult,
@@ -21,7 +22,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  getFirestore,
   onSnapshot,
   query,
   setDoc,
@@ -57,11 +57,247 @@ export const AuthProvider = ({ children }) => {
   const [pendingOrders, setPendingOrders] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [inventory, setInventory] = useState([]);
-  const [todos, setTodos] = useState([]);
 
-  const firestore = getFirestore();
-  const users = collection(firestore, "users");
+  const handleClose = useCallback(() => setOpen(false), []);
+  const handleOpen = useCallback(() => setOpen(true), []);
 
+  // Functions to create, sign in and log out firebase user
+  const initializeUser = useCallback(async (displayName, email, photoURL) => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      await setDoc(doc(db, "users", currentUser.uid), {
+        displayName,
+        email,
+        photoURL,
+      });
+
+      const transactionsRef = doc(db, "transactions", currentUser.uid);
+      const pendingOrdersRef = doc(db, "pendingOrders", currentUser.uid);
+      const todosRef = collection(db, "users", currentUser.uid, "todos");
+
+      await setDoc(transactionsRef, {
+        userId: currentUser.uid,
+        transactions: [],
+      });
+      await setDoc(pendingOrdersRef, { userId: currentUser.uid, orders: [] });
+      await addDoc(todosRef, {});
+
+      setUser({ displayName, email, photoURL });
+    }
+  }, []);
+
+  const signInWithGoogle = useCallback(async () => {
+    setLoading(true);
+    try {
+      await signInWithRedirect(auth, googleProvider);
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: error.message,
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    setLoading(true);
+    try {
+      await signOut(auth);
+      setUser(null);
+      setAlert({
+        open: true,
+        message: "Logged out successfully",
+        type: "success",
+      });
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: error.message,
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Function to update firebase user details in the user settings page
+  const updateUserDetails = useCallback(async (uid, values) => {
+    setLoading(true);
+    try {
+      const userDocRef = doc(db, "users", uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        await updateDoc(userDocRef, values);
+      } else {
+        await setDoc(userDocRef, values);
+      }
+
+      if (values.displayName) {
+        await updateProfile(auth.currentUser, {
+          displayName: values.displayName,
+        });
+      }
+
+      setUser((prevUser) => ({ ...prevUser, ...values }));
+      setAlert({
+        open: true,
+        message: "Profile updated successfully",
+        type: "success",
+      });
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: error.message,
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Functions to manage sales data for sales analysis
+  const fetchSalesData = useCallback(async () => {
+    const salesDocRef = doc(db, "sales", "mockSalesData");
+    const salesDoc = await getDoc(salesDocRef);
+
+    if (salesDoc.exists()) {
+      setSalesData(salesDoc.data());
+    } else {
+      console.error("Sales data not found!");
+    }
+  }, []);
+
+  const updateSalesData = useCallback(async (transaction) => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const salesDocRef = doc(db, "sales", "mockSalesData");
+      const salesDoc = await getDoc(salesDocRef);
+      const salesData = salesDoc.exists()
+        ? salesDoc.data()
+        : mockInitialSalesData;
+      const currentQuarter = `Q${Math.floor(
+        (new Date().getMonth() + 3) / 3
+      )} ${new Date().getFullYear()}`;
+      const revenue = transaction.amount;
+      const profit = revenue * 0.45;
+
+      if (salesData[currentQuarter]) {
+        salesData[currentQuarter].revenue += revenue;
+        salesData[currentQuarter].profit += profit;
+      } else {
+        salesData[currentQuarter] = { revenue, profit };
+      }
+
+      await setDoc(salesDocRef, salesData);
+    }
+  }, []);
+
+  const updateSalesDataOnDelete = useCallback(async (transaction) => {
+    const salesDocRef = doc(db, "sales", "mockSalesData");
+    const salesDoc = await getDoc(salesDocRef);
+    const salesData = salesDoc.exists()
+      ? salesDoc.data()
+      : mockInitialSalesData;
+    const currentQuarter = `Q${Math.floor(
+      (new Date().getMonth() + 3) / 3
+    )} ${new Date().getFullYear()}`;
+    const revenue = transaction.amount;
+    const profit = revenue * 0.45;
+
+    if (salesData[currentQuarter]) {
+      salesData[currentQuarter].revenue -= revenue;
+      salesData[currentQuarter].profit -= profit;
+    }
+
+    await setDoc(salesDocRef, salesData);
+  }, []);
+
+  //Functions to fetch and manage pending transactions
+  const fetchTransactions = useCallback(async (userId) => {
+    const q = query(
+      collection(db, "transactions"),
+      where("userId", "==", userId)
+    );
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const transactionsArray = [];
+      querySnapshot.forEach((doc) => {
+        const transactionData = doc.data().transactions.map((transaction) => ({
+          ...transaction,
+          date: transaction.date.toDate(),
+        }));
+        transactionsArray.push(...transactionData);
+      });
+      setTransactions(transactionsArray);
+    });
+    return unsubscribe;
+  }, []);
+
+  const addTransaction = useCallback(
+    async (transaction) => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const transactionsCollection = collection(db, "transactions");
+        const q = query(
+          transactionsCollection,
+          where("userId", "==", currentUser.uid)
+        );
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const docRef = querySnapshot.docs[0].ref;
+          await updateDoc(docRef, {
+            transactions: [
+              ...querySnapshot.docs[0].data().transactions,
+              transaction,
+            ],
+          });
+        } else {
+          await addDoc(transactionsCollection, {
+            userId: currentUser.uid,
+            transactions: [transaction],
+          });
+        }
+        await updateSalesData(transaction);
+        fetchSalesData();
+      }
+    },
+    [fetchSalesData, updateSalesData]
+  );
+
+  const deleteTransaction = useCallback(
+    async (transactionId) => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const transactionsCollection = collection(db, "transactions");
+        const q = query(
+          transactionsCollection,
+          where("userId", "==", currentUser.uid)
+        );
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const docRef = querySnapshot.docs[0].ref;
+          const transactionData = querySnapshot.docs[0].data().transactions;
+          const transactionToDelete = transactionData.find(
+            (transaction) => transaction.id === transactionId
+          );
+
+          await updateDoc(docRef, {
+            transactions: arrayRemove(transactionToDelete),
+          });
+
+          await updateSalesDataOnDelete(transactionToDelete);
+          fetchSalesData();
+        }
+      }
+    },
+    [fetchSalesData, updateSalesDataOnDelete]
+  );
+
+  // Functions to fetch and manage inventory
   const fetchInventory = useCallback(async () => {
     const q = query(collection(db, "inventory"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -78,26 +314,107 @@ export const AuthProvider = ({ children }) => {
     return unsubscribe;
   }, []);
 
-  const fetchTodos = useCallback(async (userId) => {
-    const q = query(collection(db, "users", userId, "todos"));
+  const addInventory = useCallback(async (inventoryData) => {
+    const userRef = collection(db, "inventory");
+    const newInventory = {
+      ...inventoryData,
+      date: inventoryData.date || Timestamp.now(),
+    };
+    await addDoc(userRef, newInventory);
+  }, []);
+
+  // Functions to fetch and manage pending orders
+  const fetchPendingOrders = useCallback(async (userId) => {
+    const q = query(
+      collection(db, "pendingOrders"),
+      where("userId", "==", userId)
+    );
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const todosArray = [];
+      const ordersArray = [];
       querySnapshot.forEach((doc) => {
-        const todoData = doc.data();
-        todosArray.push({
-          ...todoData,
-          id: doc.id,
-        });
+        const orderData = doc.data().orders.map((order) => ({
+          ...order,
+          date: order.date.toDate(),
+        }));
+        ordersArray.push(...orderData);
       });
-      setTodos((prevTodos) => [...prevTodos, ...todosArray]);
+      setPendingOrders(ordersArray);
     });
     return unsubscribe;
+  }, []);
+
+  const addPendingOrder = useCallback(async (order) => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const ordersCollection = collection(db, "pendingOrders");
+      const q = query(ordersCollection, where("userId", "==", currentUser.uid));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const docRef = querySnapshot.docs[0].ref;
+        const existingOrders = querySnapshot.docs[0].data().orders || [];
+        await updateDoc(docRef, {
+          orders: [...existingOrders, order],
+        });
+      } else {
+        await addDoc(ordersCollection, {
+          userId: currentUser.uid,
+          orders: [order],
+        });
+      }
+    }
+  }, []);
+
+  const deletePendingOrder = useCallback(async (orderId) => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const ordersCollection = collection(db, "pendingOrders");
+      const q = query(ordersCollection, where("userId", "==", currentUser.uid));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const docRef = querySnapshot.docs[0].ref;
+        const orderData = querySnapshot.docs[0].data().orders;
+        const orderToDelete = orderData.find((order) => order.id === orderId);
+
+        await updateDoc(docRef, {
+          orders: arrayRemove(orderToDelete),
+        });
+      }
+    }
+  }, []);
+
+  // Functions to manage todos
+  const addTodo = useCallback(async (todo) => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const todosCollection = collection(db, "users", currentUser.uid, "todos");
+      await addDoc(todosCollection, todo);
+    }
+  }, []);
+
+  const updateTodo = useCallback(async (todoId, completed) => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const todoDocRef = doc(db, "users", currentUser.uid, "todos", todoId);
+      await updateDoc(todoDocRef, { completed });
+    }
+  }, []);
+
+  const deleteTodo = useCallback(async (todoId) => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const todosCollection = collection(db, "users", currentUser.uid, "todos");
+      const todoDocRef = doc(todosCollection, todoId);
+      await deleteDoc(todoDocRef);
+    }
   }, []);
 
   useEffect(() => {
     fetchInventory();
   }, [fetchInventory]);
 
+  // Hook to fetch latest data of user when update is needed or fetched
   useEffect(() => {
     setLoading(true);
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -105,7 +422,6 @@ export const AuthProvider = ({ children }) => {
         setUser(user);
         fetchPendingOrders(user.uid);
         fetchTransactions(user.uid);
-        await fetchTodos(user.uid);
       } else {
         setUser(null);
       }
@@ -151,369 +467,69 @@ export const AuthProvider = ({ children }) => {
       });
 
     return () => unsubscribe();
-  }, [fetchTodos, user]);
+  }, [fetchPendingOrders, fetchTransactions, initializeUser, user]);
 
-  const handleLogout = async () => {
-    setLoading(true);
-    try {
-      await signOut(auth);
-      setUser(null);
-      setAlert({
-        open: true,
-        message: "Logged out successfully",
-        type: "success",
-      });
-    } catch (error) {
-      setAlert({
-        open: true,
-        message: error.message,
-        type: "error",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signInWithGoogle = async () => {
-    setLoading(true);
-    try {
-      await signInWithRedirect(auth, googleProvider);
-    } catch (error) {
-      setAlert({
-        open: true,
-        message: error.message,
-        type: "error",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const initializeUser = async (displayName, email, photoURL) => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      await setDoc(doc(db, "users", currentUser.uid), {
-        displayName,
-        email,
-        photoURL,
-      });
-
-      const transactionsRef = doc(db, "transactions", currentUser.uid);
-      const pendingOrdersRef = doc(db, "pendingOrders", currentUser.uid);
-      const todosRef = collection(db, "users", currentUser.uid, "todos");
-
-      await setDoc(transactionsRef, {
-        userId: currentUser.uid,
-        transactions: [],
-      });
-      await setDoc(pendingOrdersRef, { userId: currentUser.uid, orders: [] });
-      await addDoc(todosRef, {});
-
-      setUser({ displayName, email, photoURL });
-    }
-  };
-
-  const updateUserDetails = async (uid, values) => {
-    setLoading(true);
-    try {
-      const userDocRef = doc(db, "users", uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (userDoc.exists()) {
-        await updateDoc(userDocRef, values);
-      } else {
-        await setDoc(userDocRef, values);
-      }
-
-      if (values.displayName) {
-        await updateProfile(auth.currentUser, {
-          displayName: values.displayName,
-        });
-      }
-
-      setUser({ ...user, ...values });
-      setAlert({
-        open: true,
-        message: "Profile updated successfully",
-        type: "success",
-      });
-    } catch (error) {
-      setAlert({
-        open: true,
-        message: error.message,
-        type: "error",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchPendingOrders = async (userId) => {
-    const q = query(
-      collection(db, "pendingOrders"),
-      where("userId", "==", userId)
-    );
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const ordersArray = [];
-      querySnapshot.forEach((doc) => {
-        const orderData = doc.data().orders.map((order) => ({
-          ...order,
-          date: order.date.toDate(),
-        }));
-        ordersArray.push(...orderData);
-      });
-      setPendingOrders(ordersArray);
-    });
-    return unsubscribe;
-  };
-
-  const fetchTransactions = async (userId) => {
-    const q = query(
-      collection(db, "transactions"),
-      where("userId", "==", userId)
-    );
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const transactionsArray = [];
-      querySnapshot.forEach((doc) => {
-        const transactionData = doc.data().transactions.map((transaction) => ({
-          ...transaction,
-          date: transaction.date.toDate(),
-        }));
-        transactionsArray.push(...transactionData);
-      });
-      setTransactions(transactionsArray);
-    });
-    return unsubscribe;
-  };
-
-  const fetchSalesData = useCallback(async () => {
-    const salesDocRef = doc(db, "sales", "mockSalesData");
-    const salesDoc = await getDoc(salesDocRef);
-
-    if (salesDoc.exists()) {
-      setSalesData(salesDoc.data());
-    } else {
-      console.error("Sales data not found!");
-    }
-  }, []);
-
-  const addTransaction = async (transaction) => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const transactionsCollection = collection(db, "transactions");
-      const q = query(
-        transactionsCollection,
-        where("userId", "==", currentUser.uid)
-      );
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        const docRef = querySnapshot.docs[0].ref;
-        await updateDoc(docRef, {
-          transactions: [
-            ...querySnapshot.docs[0].data().transactions,
-            transaction,
-          ],
-        });
-      } else {
-        await addDoc(transactionsCollection, {
-          userId: currentUser.uid,
-          transactions: [transaction],
-        });
-      }
-      await updateSalesData(transaction);
-      fetchSalesData();
-    }
-  };
-
-  const updateSalesData = async (transaction) => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const salesDocRef = doc(db, "sales", "mockSalesData");
-      const salesDoc = await getDoc(salesDocRef);
-      const salesData = salesDoc.exists()
-        ? salesDoc.data()
-        : mockInitialSalesData;
-      const currentQuarter = `Q${Math.floor(
-        (new Date().getMonth() + 3) / 3
-      )} ${new Date().getFullYear()}`;
-      const revenue = transaction.amount;
-      const profit = revenue * 0.45;
-
-      if (salesData[currentQuarter]) {
-        salesData[currentQuarter].revenue += revenue;
-        salesData[currentQuarter].profit += profit;
-      } else {
-        salesData[currentQuarter] = { revenue, profit };
-      }
-
-      await setDoc(salesDocRef, salesData);
-    }
-  };
-
-  const addPendingOrder = async (order) => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const ordersCollection = collection(db, "pendingOrders");
-      const q = query(ordersCollection, where("userId", "==", currentUser.uid));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        const docRef = querySnapshot.docs[0].ref;
-        const existingOrders = querySnapshot.docs[0].data().orders || [];
-        await updateDoc(docRef, {
-          orders: [...existingOrders, order],
-        });
-      } else {
-        await addDoc(ordersCollection, {
-          userId: currentUser.uid,
-          orders: [order],
-        });
-      }
-    }
-  };
-
-  const addInventory = async (inventoryData) => {
-    const userRef = collection(db, "inventory");
-    const newInventory = {
-      ...inventoryData,
-      date: inventoryData.date || Timestamp.now(),
-    };
-    await addDoc(userRef, newInventory);
-  };
-
-  const deleteTransaction = async (transactionId) => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const transactionsCollection = collection(db, "transactions");
-      const q = query(
-        transactionsCollection,
-        where("userId", "==", currentUser.uid)
-      );
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        const docRef = querySnapshot.docs[0].ref;
-        const transactionData = querySnapshot.docs[0].data().transactions;
-        const transactionToDelete = transactionData.find(
-          (transaction) => transaction.id === transactionId
-        );
-
-        await updateDoc(docRef, {
-          transactions: arrayRemove(transactionToDelete),
-        });
-
-        await updateSalesDataOnDelete(transactionToDelete);
-        fetchSalesData();
-      }
-    }
-  };
-
-  const addTodo = async (todo) => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const todosCollection = collection(db, "users", currentUser.uid, "todos");
-      await addDoc(todosCollection, todo);
-    }
-  };
-
-  const updateSalesDataOnDelete = async (transaction) => {
-    const salesDocRef = doc(db, "sales", "mockSalesData");
-    const salesDoc = await getDoc(salesDocRef);
-    const salesData = salesDoc.exists()
-      ? salesDoc.data()
-      : mockInitialSalesData;
-    const currentQuarter = `Q${Math.floor(
-      (new Date().getMonth() + 3) / 3
-    )} ${new Date().getFullYear()}`;
-    const revenue = transaction.amount;
-    const profit = revenue * 0.45;
-
-    if (salesData[currentQuarter]) {
-      salesData[currentQuarter].revenue -= revenue;
-      salesData[currentQuarter].profit -= profit;
-    }
-
-    await setDoc(salesDocRef, salesData);
-  };
-
-  const deletePendingOrder = async (orderId) => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const ordersCollection = collection(db, "pendingOrders");
-      const q = query(ordersCollection, where("userId", "==", currentUser.uid));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        const docRef = querySnapshot.docs[0].ref;
-        const orderData = querySnapshot.docs[0].data().orders;
-        const orderToDelete = orderData.find((order) => order.id === orderId);
-
-        await updateDoc(docRef, {
-          orders: arrayRemove(orderToDelete),
-        });
-      }
-    }
-  };
-
-  const updateTodo = async (todoId, completed) => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const todoDocRef = doc(db, "users", currentUser.uid, "todos", todoId);
-      await updateDoc(todoDocRef, { completed });
-    }
-  };
-
-  const deleteTodo = async (todoId) => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const todosCollection = collection(db, "users", currentUser.uid, "todos");
-      const todoDocRef = doc(todosCollection, todoId);
-      await deleteDoc(todoDocRef);
-    }
-  };
-
-  const handleClose = () => setOpen(false);
-  const handleOpen = () => setOpen(true);
-
-  return (
-    <AuthContext.Provider
-      value={{
-        alert,
-        user,
-        users,
-        loading,
-        open,
-        email,
-        password,
-        confirmPassword,
-        setEmail,
-        setPassword,
-        setConfirmPassword,
-        signInWithGoogle,
-        handleLogout,
-        handleClose,
-        handleOpen,
-        updateUserDetails,
-        addTransaction,
-        addPendingOrder,
-        addInventory,
-        userTodos: todos,
-        addTodo,
-        salesData,
-        fetchSalesData,
-        pendingOrders,
-        inventory,
-        transactions,
-        updateTodo,
-        deleteTransaction,
-        deletePendingOrder,
-        deleteTodo,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      alert,
+      firestoreUser: user,
+      loading,
+      open,
+      email,
+      password,
+      confirmPassword,
+      setEmail,
+      setPassword,
+      setConfirmPassword,
+      signInWithGoogle,
+      handleLogout,
+      handleClose,
+      handleOpen,
+      updateUserDetails,
+      addTransaction,
+      addPendingOrder,
+      addInventory,
+      addTodo,
+      salesData,
+      fetchSalesData,
+      pendingOrders,
+      inventory,
+      transactions,
+      updateTodo,
+      deleteTransaction,
+      deletePendingOrder,
+      deleteTodo,
+    }),
+    [
+      alert,
+      user,
+      loading,
+      open,
+      email,
+      password,
+      confirmPassword,
+      signInWithGoogle,
+      handleLogout,
+      handleClose,
+      handleOpen,
+      updateUserDetails,
+      addTransaction,
+      addPendingOrder,
+      addInventory,
+      addTodo,
+      salesData,
+      fetchSalesData,
+      pendingOrders,
+      inventory,
+      transactions,
+      updateTodo,
+      deleteTransaction,
+      deletePendingOrder,
+      deleteTodo,
+    ]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);

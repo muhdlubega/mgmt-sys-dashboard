@@ -10,10 +10,11 @@ import { recentTransactionsSchema } from "../../../utils/validationSchema";
 import "./RecentTransactions.scss";
 
 const RecentTransactions = () => {
-  const { user, addTransaction, transactions, deleteTransaction } = useAuth();
+  const { firestoreUser, addTransaction, transactions, deleteTransaction } =
+    useAuth();
 
   const handleSubmit = async (values, { resetForm }) => {
-    if (user) {
+    if (firestoreUser) {
       try {
         await addTransaction({
           ...values,
@@ -29,9 +30,9 @@ const RecentTransactions = () => {
 
   return (
     <div className="recent-transactions">
-      <h2>Recent Transactions</h2>
-      {user ? (
-        <div className="recent-transactions__content">
+      <h3>Recent Transactions</h3>
+      {firestoreUser ? (
+        <div>
           <Formik
             initialValues={{ description: "", amount: "" }}
             validationSchema={recentTransactionsSchema}
@@ -66,26 +67,38 @@ const RecentTransactions = () => {
             )}
           </Formik>
           {transactions.length > 0 ? (
-            <ul>
+            <ul className="recent-transactions__content">
               {transactions.map((transaction, index) => (
-                <li key={index}>
-                  <p>{transaction.description}</p>
-                  <p>USD {transaction.amount.toFixed(2)}</p>
-                  <p>Added: {transaction.date.toDateString()}</p>
-                  <FaTrash onClick={() => deleteTransaction(transaction.id)} />
+                <li className="recent-transactions__item" key={index}>
+                  <div>
+                    <p>
+                      <strong>{transaction.description}</strong>
+                    </p>
+                    <p>
+                      <strong>Amount:</strong> USD{" "}
+                      {transaction.amount.toFixed(2)}
+                    </p>
+                    <p>
+                      <strong>Added:</strong> {transaction.date.toDateString()}
+                    </p>
+                  </div>
+                  <FaTrash
+                    size={18}
+                    onClick={() => deleteTransaction(transaction.id)}
+                  />
                 </li>
               ))}
             </ul>
           ) : (
-            <div>
-              <FaPersonCircleQuestion size={64} />
+            <div className="recent-transactions__empty">
+              <FaPersonCircleQuestion size={firestoreUser ? 96 : 144} />
               No recent transactions available. Add a new transaction above
             </div>
           )}
         </div>
       ) : (
-        <div>
-          <FaPersonCircleQuestion size={64} />
+        <div className="recent-transactions__empty">
+          <FaPersonCircleQuestion size={144} />
           Login to add & check your recent transactions
         </div>
       )}

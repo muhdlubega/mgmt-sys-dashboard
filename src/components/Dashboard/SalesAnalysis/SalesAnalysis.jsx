@@ -16,6 +16,7 @@ const SalesAnalysis = () => {
   }, [fetchSalesData]);
 
   const chartOptions = useMemo(() => {
+    //Sort quarters according to year order followed by quarter order
     const quarters = Object.keys(salesData).sort((a, b) => {
       const [qA, yearA] = a.split(" ");
       const [qB, yearB] = b.split(" ");
@@ -33,19 +34,56 @@ const SalesAnalysis = () => {
       chart: {
         type: "bar",
         height: 400,
+        backgroundColor: "royalblue",
       },
       title: {
         text: "Quarterly Sales Analysis",
+        style: {
+          color: "white",
+        },
       },
       xAxis: {
         categories: quarters,
         title: {
           text: "Quarter",
+          style: {
+            color: "white",
+          },
+        },
+        labels: {
+          style: {
+            color: "white",
+          },
         },
       },
       yAxis: {
         title: {
           text: "Amount (USD)",
+          style: {
+            color: "white",
+          },
+        },
+        gridLineColor: "black",
+        labels: {
+          style: {
+            color: "white",
+          },
+        },
+      },
+      plotOptions: {
+        bar: {
+          borderColor: "transparent",
+        },
+      },
+      legend: {
+        itemStyle: {
+          color: "white",
+        },
+        itemHoverStyle: {
+          color: "black",
+        },
+        itemHiddenStyle: {
+          color: "white",
         },
       },
       series: [
@@ -58,12 +96,14 @@ const SalesAnalysis = () => {
           data: profitData,
         },
       ],
+      credits: {
+        enabled: false,
+      },
     };
   }, [salesData]);
 
   return (
     <div className="sales-analysis">
-      <h2>Sales Analysis</h2>
       <HighchartsReact highcharts={Highcharts} options={chartOptions} />
     </div>
   );

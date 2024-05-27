@@ -1,5 +1,68 @@
 .user-profile {
+
+  &-details{
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 20px;
+    background-color: #30353c;
+    margin: 20px;
+    padding: 20px;
+    border-radius: 20px;
+
+    @media screen and (max-width: 768px) {
+      flex-direction: column;
+  }
+
+    &__icon {
+      display: flex;
+    flex-direction: column;
+    gap: 20px;
+    }
+
+    &__text {
+      display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    color: #616b78;
+
+    h1 {
+      margin: 0;
+      color: royalblue;
+    }
+
+    p {
+      margin-bottom: 0;
+    }
+    }
+  }
+
+  .back-button{
+    background-color: royalblue;
+    outline: none;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: white;
+
+    &:hover {
+      background-color: rgb(41, 77, 186);
+    }
+  }
+
   .user-todos {
+    background-color: #262a30;
+    color: #616b78;
+    padding: 10px 20px 20px;
+    margin: 20px;
+    border-radius: 10px;
+
     ul {
       list-style: none;
       padding: 0;
@@ -13,20 +76,108 @@
       .icon-completed {
         color: green;
         margin-right: 8px;
+        cursor: pointer;
       }
 
       .icon-not-completed {
         color: red;
         margin-right: 8px;
+        cursor: pointer;
       }
 
       .completed {
         text-decoration: line-through;
       }
+
+      .trashcan {
+        margin-left: 10px;
+        color: #616b78;
+
+        &:hover{
+          color: #30353c;
+          cursor: pointer;
+        }
+      }
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+  
+      input,
+      button {
+        padding: 6px 10px;
+        font-size: 14px;
+        border-radius: 4px;
+      }
+    }
+  
+    input {
+      width: calc(100% - 22px);
+      background-color: #2a2e34;;
+      border: 1px solid #616b78;
+      color: #616b78;
+  
+      &:focus-visible {
+        outline: royalblue solid 1px;
+    }
+    }
+  
+    button {
+      background: royalblue;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 20px;
+  
+      &:disabled {
+        background: grey;
+        cursor: not-allowed;
+      }
+  
+      &:hover {
+        background-color: rgb(41, 77, 186);
+      }
+    }
+  
+    .error {
+      color: red;
+      font-size: 0.875rem;
     }
   }
 
   .user-posts {
-    margin-top: 20px;
+    background-color: #262a30;
+    color: #616b78;
+    padding: 10px 20px 20px;
+    margin: 20px;
+    border-radius: 10px;
+
+    a {
+      color: #616b78;
+      display: flex;
+      margin: 10px 0;
+      padding: 0 20px;
+      border-radius: 10px;
+      flex-direction: column;
+      border: 1px solid #616b78;
+      text-decoration: none;
+      
+      &:hover {
+        background-color: #616b78;
+        color: white;
+        transform: scale(1.01);
+
+        h4 {
+          color: rgb(150, 177, 255);
+        }
+      }
+
+      h4 {
+        color: royalblue;
+        margin-bottom: 0;
+      }
+    }
   }
 }

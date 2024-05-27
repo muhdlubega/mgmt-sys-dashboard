@@ -1,20 +1,103 @@
 .post {
     list-style-type: none;
-    opacity: 0.9;
-    background: lightsteelblue;
-    margin: 20px;
-    border-radius: 10px;
+    background-color: #30353c;
+    margin: 20px 20px 0;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    padding: 10px 20px 20px;
+    cursor: pointer;
+    color: #616b78;
+    text-decoration: none;
 
-    a {
-        cursor: pointer;
+    @media screen and (max-width: 425px) {
+        flex-direction: column;
+        font-size: 12px;
 
-        &:hover {
-            opacity: 1;
-            transition: all 0.1s ease-out;
+        .post-details{
+            margin-left: 0;
         }
+
+        h3 {
+            max-width: 180px;
+            overflow: hidden;
+        }
+
+        .post-commentbox {
+            width: 150px;
+        }
+      }
+
+    &:hover {
+        transition: all 0.1s ease-out;
+        background-color: #25292f;
+    }
+
+    &-user {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        margin-top: 20px;
+    }
+
+    &-details {
+        display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin-left: 20px;
+    align-items: flex-start;
+    }
+
+    &-comments{
+        border: 1px solid #616b78;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        padding: 0 20px 10px;
     }
 
     p {
         margin: 12px 0 0;
+    }
+
+    h4 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    h3 {
+        color: royalblue;
+    }
+
+    h5 {
+        margin: 20px 0 0;
+    display: flex;
+    justify-content: flex-end;
+    color: royalblue;
+    cursor: pointer;
+
+    &:hover {
+        color: #616b78;
+    }
+    }
+}
+
+.show-comments-button{
+    display: flex;
+    cursor: pointer;
+    color: white;
+    width: calc(100% - 40px);
+    margin-left: 20px;
+    background-color: #616b78;
+    border: none;
+    outline: none;
+    border-radius: 0 0 10px 10px;
+    padding: 0 20px;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+    font-weight: bold;
+
+    &:hover {
+        background-color: #25292f;
     }
 }

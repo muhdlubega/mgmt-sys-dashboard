@@ -1,6 +1,117 @@
 .pending-orders {
-    &__content {
-        max-height: 400px;
-        overflow: scroll;
+    padding: 10px;
+    border: 1px solid #616b78;
+    margin: 20px 20px 0 0;
+    border-radius: 10px;
+    height: 390px;
+  
+    @media screen and (max-width: 992px) {
+        margin: 0 20px;
     }
-}
+
+    &__content {
+      max-height: 220px;
+      margin: 0;
+      padding: 0;
+      overflow: scroll;
+    }
+  
+    &__item {
+      list-style-type: none;
+      display: flex;
+      align-items: center;
+      background-color: #30353c;
+      justify-content: space-between;
+      padding: 0 20px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      color: #616b78;
+      font-size: 14px;
+  
+      div {
+        display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      }
+  
+      p{
+        margin: 6px 10px;
+        max-width: 250px;
+        overflow: hidden;
+      }
+  
+      svg {
+        cursor: pointer;
+        color: #616b78;
+  
+        &:hover {
+          color: #2a2e34;
+        }
+      }
+    }
+  
+    &__empty {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      justify-content: center;
+      color: #616b78;
+      height: calc(100% - 22.5px - 80px);
+  
+      svg {
+        align-self: center;
+      }
+    }
+  
+    h3 {
+      font-size: 19.2px;
+      margin: 6px 0 16px;
+      color: #616b78;
+    }
+  
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+  
+      input,
+      button {
+        padding: 6px 10px;
+        font-size: 14px;
+        border-radius: 4px;
+      }
+    }
+  
+    input {
+      width: calc(100% - 22px);
+      background-color: #2a2e34;;
+      border: 1px solid #616b78;
+      color: #616b78;
+  
+      &:focus-visible {
+        outline: royalblue solid 1px;
+    }
+    }
+  
+    button {
+      background: royalblue;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 20px;
+  
+      &:disabled {
+        background: grey;
+        cursor: not-allowed;
+      }
+  
+      &:hover {
+        background-color: rgb(41, 77, 186);
+      }
+    }
+  
+    .error {
+      color: red;
+      font-size: 0.875rem;
+    }
+  }

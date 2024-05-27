@@ -1,5 +1,6 @@
 import * as Yup from "yup";
 
+// Contains validation schema for all input fields to ensure input validation and handling security vulnerabilities
 const geoSchema = Yup.object().shape({
   lat: Yup.number()
     .nullable()
@@ -83,7 +84,9 @@ export const inventorySchema = Yup.object().shape({
 });
 
 export const todoSchema = Yup.object().shape({
-  title: Yup.string().required("Title is required"),
+  title: Yup.string()
+    .max(50, "Description must be 50 characters or less")
+    .required("Title is required"),
 });
 
 export default userSettingsSchema;

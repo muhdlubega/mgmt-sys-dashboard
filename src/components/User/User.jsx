@@ -6,14 +6,17 @@ import "./User.scss";
 
 const User = ({ user }) => {
   return (
-    <li className="user" key={user.id}>
-      <Link to={`/user/${user.id}`}>
-        <RandomAvatar name={user.name || user.email?.split("@")[0]} size={40} />
-        <p>{user.name || user.email?.split("@")[0]}</p>
-      </Link>
-      <p>{user.username}</p>
-      <p>{user.email}</p>
-    </li>
+    <Link to={`/user/${user.id}`} className="user" key={user.id}>
+      <RandomAvatar
+        name={user.name || user.email?.split("@")[0]}
+        size={window.innerWidth < 768 ? 60 : 100}
+      />
+      <div className="user-content">
+        <h4>{user.name || user.email?.split("@")[0]}</h4>
+        <p>{user.username}</p>
+        <p>{user.email}</p>
+      </div>
+    </Link>
   );
 };
 

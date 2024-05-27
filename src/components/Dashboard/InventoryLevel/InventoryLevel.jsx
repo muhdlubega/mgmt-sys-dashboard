@@ -44,19 +44,50 @@ const InventoryLevel = () => {
       chart: {
         type: "bar",
         height: 400,
+        backgroundColor: "#2a2e34",
       },
       title: {
         text: "Inventory Added Per Day",
+        style: {
+          color: "#616b78",
+        },
       },
       xAxis: {
         categories,
         title: {
           text: "Date",
         },
+        labels: {
+          style: {
+            color: "#616b78",
+          },
+        },
       },
       yAxis: {
         title: {
           text: "Quantity",
+        },
+        gridLineColor: "#616b78",
+        labels: {
+          style: {
+            color: "#616b78",
+          },
+        },
+      },
+      plotOptions: {
+        bar: {
+          borderColor: "#616b78",
+        },
+      },
+      legend: {
+        itemStyle: {
+          color: "#616b78",
+        },
+        itemHoverStyle: {
+          color: "#fff",
+        },
+        itemHiddenStyle: {
+          color: "#616b78",
         },
       },
       series: [
@@ -65,12 +96,14 @@ const InventoryLevel = () => {
           data: seriesData,
         },
       ],
+      credits: {
+        enabled: false,
+      },
     };
   }, [inventory]);
 
   return (
     <div className="inventory-level">
-      <h2>Inventory Level</h2>
       <HighchartsReact highcharts={Highcharts} options={chartOptions} />
       <Formik
         initialValues={{ description: "", quantity: "" }}
@@ -106,7 +139,7 @@ const InventoryLevel = () => {
           </tr>
         </thead>
         <tbody>
-          {inventory.map((item, index) => (
+          {inventory.slice(0, 6).map((item, index) => (
             <tr key={index}>
               <td>{item.description}</td>
               <td>{item.quantity}</td>

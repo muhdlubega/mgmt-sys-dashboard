@@ -10,11 +10,11 @@ import { pendingOrdersSchema } from "../../../utils/validationSchema";
 import "./PendingOrders.scss";
 
 const PendingOrders = () => {
-  const { user, addPendingOrder, pendingOrders, deletePendingOrder } =
+  const { firestoreUser, addPendingOrder, pendingOrders, deletePendingOrder } =
     useAuth();
 
   const handleSubmit = async (values, { resetForm }) => {
-    if (user) {
+    if (firestoreUser) {
       try {
         await addPendingOrder({
           ...values,
@@ -30,9 +30,9 @@ const PendingOrders = () => {
 
   return (
     <div className="pending-orders">
-      <h2>Pending Orders</h2>
-      {user ? (
-        <div className="pending-orders__content">
+      <h3>Pending Orders</h3>
+      {firestoreUser ? (
+        <div>
           <Formik
             initialValues={{ description: "", amount: "" }}
             validationSchema={pendingOrdersSchema}
@@ -67,26 +67,38 @@ const PendingOrders = () => {
             )}
           </Formik>
           {pendingOrders.length > 0 ? (
-            <ul>
+            <ul className="pending-orders__content">
               {pendingOrders.map((order, index) => (
-                <li key={index}>
-                  <p>{order.description}</p>
-                  <p>{order.amount}</p>
-                  <p>{order.date.toDateString()}</p>
-                  <FaTrash onClick={() => deletePendingOrder(order.id)} />
+                <li className="pending-orders__item" key={index}>
+                  <div>
+                    <p>
+                      <strong>{order.description}</strong>
+                    </p>
+                    <p>
+                      <strong>Amount: </strong>
+                      {order.amount}
+                    </p>
+                    <p>
+                      <strong>Added:</strong> {order.date.toDateString()}
+                    </p>
+                  </div>
+                  <FaTrash
+                    size={18}
+                    onClick={() => deletePendingOrder(order.id)}
+                  />
                 </li>
               ))}
             </ul>
           ) : (
-            <div>
-              <FaPersonCircleQuestion size={64} />
+            <div className="pending-orders__empty">
+              <FaPersonCircleQuestion size={firestoreUser ? 96 : 144} />
               No pending orders available. Add a new order above
             </div>
           )}
         </div>
       ) : (
-        <div>
-          <FaPersonCircleQuestion size={64} />
+        <div className="pending-orders__empty">
+          <FaPersonCircleQuestion size={144} />
           Login to add & check your pending orders
         </div>
       )}

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { RandomAvatar } from "react-random-avatars";
 import { useNavigate, useParams } from "react-router-dom";
+import { RiArrowGoBackFill } from "react-icons/ri";
 
 import { Loader } from "../../components";
 import { useData } from "../../context/DataContext";
@@ -36,41 +37,44 @@ const PostDetails = () => {
 
   return (
     <div className="post-details">
-      <button onClick={handleBackClick} className="back-button">
-        Back
-      </button>
-      <h1>{post.title}</h1>
-      <p>{post.body}</p>
       {user && (
-        <div className="user-details">
-          <h2>User Details</h2>
-          <RandomAvatar
-            name={user.name || user.email?.split("@")[0]}
-            size={96}
-          />
-          <p>Name: {user.name || user.email?.split("@")[0]}</p>
-          <p>Username: {user.username}</p>
-          <p>Email: {user.email}</p>
-          <p>Phone: {user.phone}</p>
-          <p>Website: {user.website}</p>
-          <p>Company: {user.company.name}</p>
-          <p>
-            Address: {user.address.street}, {user.address.city}
-          </p>
+        <div className="post-details-user">
+          <div className="post-details-user__icon">
+            <RandomAvatar
+              name={user.name || user.email?.split("@")[0]}
+              size={96}
+            />
+            <button onClick={handleBackClick} className="back-button">
+              <RiArrowGoBackFill /> Back
+            </button>
+          </div>
+          <div className="post-details-user__text">
+            <h1>{user.name || user.email?.split("@")[0]}</h1>
+            <p>
+              <strong>Username:</strong> {user.username}
+            </p>
+            <p>
+              <strong>Email:</strong> {user.email}
+            </p>
+          </div>
         </div>
       )}
+      <div className="post-details-comment">
+        <h2>{post.title}</h2>
+        <p>{post.body}</p>
+      </div>
       <div className="user-comments">
         <h3>Comments:</h3>
         {postComments.length > 0 ? (
           postComments.map((comment) => (
             <div className="user-comments-content" key={comment.id}>
-              <p>{comment.name}</p>
-              <p>{comment.email}</p>
+              <h4>{comment.email}</h4>
+              <h3>{comment.name}</h3>
               <p>{comment.body}</p>
             </div>
           ))
         ) : (
-          <p>No comments found.</p>
+          <h3>No comments found.</h3>
         )}
       </div>
     </div>
