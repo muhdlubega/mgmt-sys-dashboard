@@ -5,6 +5,8 @@ import AccessibilityModule from "highcharts/modules/accessibility";
 
 import { useData } from "../../../context/DataContext";
 
+import "./MostCompletedTodos.scss";
+
 const MostCompletedTodos = () => {
   AccessibilityModule(Highcharts);
   const { getCompletedTodos } = useData();
@@ -32,15 +34,23 @@ const MostCompletedTodos = () => {
       dataLabels: {
         enabled: true,
         format: "<b>{point.name}</b>: {point.percentage:.1f} %",
+        style: {
+          color: "#616b78",
+          textOutline: "none",
+        },
       },
     };
 
     return {
       chart: {
         type: "pie",
+        backgroundColor: "#2a2e34",
       },
       title: {
         text: "Users with Most Completed Todos",
+        style: {
+          color: "#616b78",
+        },
       },
       tooltip: {
         pointFormat:
@@ -50,6 +60,7 @@ const MostCompletedTodos = () => {
         pie: {
           allowPointSelect: true,
           cursor: "pointer",
+          borderColor: "#616b78",
           dataLabels: {
             enabled: false,
           },
@@ -62,11 +73,14 @@ const MostCompletedTodos = () => {
           data,
         },
       ],
+      credits: {
+        enabled: false,
+      },
     };
   }, [completedTodosData]);
 
   return (
-    <div>
+    <div className="most-completed-todos">
       <HighchartsReact
         highcharts={Highcharts}
         options={mostCompletedTodosChartOptions}

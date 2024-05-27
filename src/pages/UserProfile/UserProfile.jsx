@@ -22,15 +22,17 @@ import { Error404 } from "../Error404";
 import { todoSchema } from "../../utils/validationSchema";
 
 import "./UserProfile.scss";
+import { RiArrowGoBackFill } from "react-icons/ri";
 
 const UserProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { loading: dataLoading, posts, users, todos } = useData();
-  const { addTodo, updateTodo, user, deleteTodo } = useAuth();
+  const { addTodo, updateTodo, firestoreUser, deleteTodo } = useAuth();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userTodos, setUserTodos] = useState([]);
+  // Check if user is coming from API using the id as parameter for regex
   const isApiUser = /^\d+$/.test(id);
   const userId = isApiUser ? parseInt(id) : id;
 
@@ -38,6 +40,7 @@ const UserProfile = () => {
     navigate(-1);
   };
 
+  // Fetching function for user data and todos depending on source of user (API data or firestore)
   useEffect(() => {
     const fetchUserData = async () => {
       if (isApiUser) {
@@ -94,11 +97,11 @@ const UserProfile = () => {
   const userPosts = posts.filter((post) => post.userId === userId);
 
   const handleSubmit = async (values, { resetForm }) => {
-    if (user && user.email === userProfile.email) {
+    if (firestoreUser && firestoreUser.email === userProfile.email) {
       try {
         await addTodo({
           ...values,
-          userId: user.uid,
+          userId: firestoreUser.uid,
           completed: false,
           date: Timestamp.now(),
         });
@@ -127,25 +130,43 @@ const UserProfile = () => {
 
   return (
     <div className="user-profile">
-      <button onClick={handleBackClick} className="back-button">
-        Back
-      </button>
-      <RandomAvatar
-        name={userProfile.name || userProfile.email?.split("@")[0]}
-        size={96}
-      />
-      <h1>{userProfile.name || userProfile.email?.split("@")[0]}</h1>
-      <p>Username: {userProfile.username}</p>
-      <p>Email: {userProfile.email}</p>
-      <p>Phone: {userProfile.phone}</p>
-      <p>Website: {userProfile.website}</p>
-      <p>Company: {userProfile.company?.name}</p>
-      <p>
-        Address: {userProfile.address?.street}, {userProfile.address?.city}
-      </p>
+      <div className="user-profile-details">
+        <div className="user-profile-details__icon">
+          <RandomAvatar
+            name={userProfile.name || userProfile.email?.split("@")[0]}
+            size={96}
+          />
+          <button onClick={handleBackClick} className="back-button">
+            <RiArrowGoBackFill /> Back
+          </button>
+        </div>
+        <div className="user-profile-details__text">
+          <h1>{userProfile.name || userProfile.email?.split("@")[0]}</h1>
+          <p>
+            <strong>Username:</strong> {userProfile.username}
+          </p>
+          <p>
+            <strong>Email:</strong> {userProfile.email}
+          </p>
+          <p>
+            <strong>Phone:</strong> {userProfile.phone}
+          </p>
+          <p>
+            <strong>Website:</strong> {userProfile.website}
+          </p>
+          <p>
+            <strong>Company:</strong> {userProfile.company?.name}
+          </p>
+          <p>
+            <strong>Address:</strong> {userProfile.address?.street}
+            {userProfile.address?.street && userProfile.address?.city && ", "}
+            {userProfile.address?.city}
+          </p>
+        </div>
+      </div>
       <div className="user-todos">
         <h3>Todos:</h3>
-        {user && user.email === userProfile.email && (
+        {firestoreUser && firestoreUser.email === userProfile.email && (
           <Formik
             initialValues={{ title: "" }}
             validationSchema={todoSchema}
@@ -175,6 +196,7 @@ const UserProfile = () => {
                 {todo.completed ? (
                   <TiTickOutline
                     className="icon-completed"
+                    size={28}
                     onClick={() =>
                       handleToggleCompletion(todo.id, todo.completed)
                     }
@@ -182,6 +204,7 @@ const UserProfile = () => {
                 ) : (
                   <TiTimesOutline
                     className="icon-not-completed"
+                    size={28}
                     onClick={() =>
                       handleToggleCompletion(todo.id, todo.completed)
                     }
@@ -190,8 +213,11 @@ const UserProfile = () => {
                 <span className={todo.completed ? "completed" : ""}>
                   {todo.title}
                 </span>
-                {user && user.email === userProfile.email && (
-                  <FaTrash onClick={() => deleteTodo(todo.id)} />
+                {firestoreUser && firestoreUser.email === userProfile.email && (
+                  <FaTrash
+                    className="trashcan"
+                    onClick={() => deleteTodo(todo.id)}
+                  />
                 )}
               </li>
             ))}
@@ -206,7 +232,7 @@ const UserProfile = () => {
           {userPosts.length > 0 ? (
             userPosts.map((post, index) => (
               <Link key={index} to={`/post/${post.id}`}>
-                <p>{post.title}</p>
+                <h4>{post.title}</h4>
                 <p>{post.body}</p>
               </Link>
             ))

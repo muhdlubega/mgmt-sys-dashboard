@@ -26,6 +26,7 @@ export const DataProvider = ({ children }) => {
 
   const fetchData = useCallback(async () => {
     try {
+      // Cache expiration time of 5 minutes set for data fetching
       const currentTime = new Date().getTime();
       if (cacheTime && currentTime - cacheTime < CACHE_EXPIRATION_TIME) {
         setLoading(false);
@@ -52,6 +53,7 @@ export const DataProvider = ({ children }) => {
     }
   }, [cacheTime]);
 
+  // Function to fetch firestore users data to incorporate with API data
   const fetchFirestoreUsers = useCallback(async () => {
     try {
       const usersSnapshot = await getDocs(collection(db, "users"));
@@ -90,14 +92,7 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  useEffect(() => {
-    fetchFirestoreUsers();
-  }, [fetchFirestoreUsers]);
-
+  // Functions to fetch parameters needed for graphs
   const getAverageCommentsPerPost = useCallback(() => {
     const postCommentCounts = posts.reduce((acc, post) => {
       acc[post.id] = comments.filter(
@@ -188,30 +183,38 @@ export const DataProvider = ({ children }) => {
     };
   }, [users, todos]);
 
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    fetchFirestoreUsers();
+  }, [fetchFirestoreUsers]);
+
   const contextValue = useMemo(
     () => ({
-      users,
-      posts,
       comments,
-      todos,
       loading,
+      posts,
+      todos,
+      users,
       getAverageCommentsPerPost,
       getAverageCommentsPerUser,
+      getCompletedTodos,
       getTopWordsFromComments,
       getTopWordsFromPosts,
-      getCompletedTodos,
     }),
     [
-      users,
-      posts,
       comments,
-      todos,
       loading,
+      posts,
+      todos,
+      users,
       getAverageCommentsPerPost,
       getAverageCommentsPerUser,
+      getCompletedTodos,
       getTopWordsFromComments,
       getTopWordsFromPosts,
-      getCompletedTodos,
     ]
   );
 

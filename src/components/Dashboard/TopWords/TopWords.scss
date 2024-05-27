@@ -1,0 +1,41 @@
+.top-words {
+    padding: 10px;
+    border: 1px solid #616b78;
+    margin: 0 0 20px 0;
+    border-radius: 10px;
+    height: 420px;
+
+    @media screen and (max-width: 992px) {
+        margin: 0 20px 0 0;
+    }
+
+    @media screen and (max-width: 768px) {
+        margin: 0 20px;
+    }
+
+    &__filters {
+        display: flex;
+        gap: 20px;
+    justify-content: center;
+    align-items: center;
+
+        &-button {
+          padding: 10px 15px;
+    background-color: #616b78;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    width: 150px;
+    cursor: pointer;
+    font-size: 16px;
+
+    &.active {
+        background-color: royalblue;
+    }
+
+    &:hover {
+      background-color: rgb(41, 77, 186);
+    }
+        }
+      }
+}

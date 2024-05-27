@@ -4,6 +4,7 @@ import { MapContainer, TileLayer } from "react-leaflet";
 import { HeatmapLayer } from "./components/HeatmapLayer";
 import { useData } from "../../../context/DataContext";
 
+import "./Heatmap.scss";
 import "leaflet/dist/leaflet.css";
 
 const Heatmap = () => {
@@ -26,13 +27,9 @@ const Heatmap = () => {
   }, [users]);
 
   return (
-    <div>
-      User Heatmap
-      <MapContainer
-        center={[0, 0]}
-        zoom={2}
-        style={{ height: "500px", width: "100%" }}
-      >
+    <div className="heatmap">
+      <h3>User Heatmap</h3>
+      <MapContainer className="heatmap__map-container" center={[0, 0]} zoom={1}>
         <TileLayer url={process.env.REACT_APP_MAP_URL} />
         <HeatmapLayer points={heatmapData} />
       </MapContainer>

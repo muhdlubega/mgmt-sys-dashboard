@@ -6,6 +6,7 @@ import { useMap } from "react-leaflet";
 const HeatmapLayer = ({ points }) => {
   const map = useMap();
 
+  // Heatmap layer settings
   useEffect(() => {
     const heatLayer = L.heatLayer(
       points.map((point) => [point.lat, point.lng, point.value]),

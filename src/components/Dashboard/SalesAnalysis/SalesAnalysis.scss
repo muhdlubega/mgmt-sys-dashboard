@@ -1,7 +1,11 @@
 .sales-analysis {
-  padding: 1rem;
-}
+  padding: 10px;
+  margin: 20px 0 0 20px;
+  border-radius: 10px;
+  height: 390px;
+  background-color: royalblue;
 
-.sales-analysis h2 {
-  margin-bottom: 1rem;
+  @media screen and (max-width: 768px) {
+    margin: 20px 20px 0 20px;
+}
 }

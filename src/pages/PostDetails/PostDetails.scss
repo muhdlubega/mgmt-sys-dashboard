@@ -1,0 +1,80 @@
+.post-details {
+    &-user {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 20px;
+        background-color: #30353c;
+        margin: 20px;
+        padding: 20px;
+        border-radius: 20px;
+
+        @media screen and (max-width: 768px) {
+            flex-direction: column;
+        }
+
+        &__icon {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        &__text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            color: #616b78;
+
+            h1 {
+                margin: 0;
+                color: royalblue;
+            }
+
+            p {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    .back-button {
+        background-color: royalblue;
+        outline: none;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        color: white;
+
+        &:hover {
+            background-color: rgb(41, 77, 186);
+        }
+    }
+
+    &-comment {
+        background-color: #616b78;
+        border-radius: 10px;
+        padding: 10px 20px;
+        margin: 10px 20px;
+        color: white;
+    }
+
+    .user-comments {
+        background-color: #25292f;
+        border-radius: 10px;
+        padding: 10px 20px;
+        margin: 20px;
+        color: #616b78;
+
+        &-content {
+            border: 1.5px solid #1f2328;
+            margin: 0 0 20px;
+            border-radius: 10px;
+            padding: 0 20px;
+        }
+    }
+}
