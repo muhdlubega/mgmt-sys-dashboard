@@ -1,6 +1,6 @@
 # Management System Dashboard
 
-This project implements a comprehensive management system dashboard featuring API integration, state management, data visualization, CRUD operations, performance optimization, and security measures. The following documentation provides an overview of the project's features, dependencies, setup instructions, usage, deployment, and submission details.
+This project implements a comprehensive management system dashboard featuring API integration, state management, data visualization, CRUD operations, performance optimization, and security measures and is written mainly in React Javascript and SCSS. It utilizes Firebase and Firestore as a database and authorization solution while also integrating data from the JSONPlaceholder API. The following documentation provides an overview of the project's features, dependencies, setup instructions, usage, deployment, and submission details.
 
 ## Features
 
@@ -29,15 +29,15 @@ State management is handled using React Context to maintain and manage the fetch
 
 ### Dashboard Components and Layout
 
-The dashboard includes reusable components that display key metrics such as total inventory count, pending orders, recent transactions, and sales analytics charts. The layout is designed using CSS Grid and Flexbox to ensure responsiveness and optimal display on both desktop and mobile devices.
+The dashboard includes reusable components that display key metrics such as quarterly sales analytics, inventory count per day count, pending orders, recent transactions and more user retention metrics. The layout is designed using CSS Grid and Flexbox to ensure responsiveness and optimal display on both desktop and mobile devices.
 
 ### Data Visualization and Charts
 
-A charting library (Highcharts) is integrated to visualize sales trends, inventory levels, and order processing statistics. The chart configurations and tooltips are customized for better data interpretation.
+A charting library (Highcharts) is integrated to visualize sales trends, inventory levels, and user retention metrics in line or bar format. Highcharts is also used to display the number of msot completed todos for the users in a pie chart format. The chart configurations and tooltips are customized for better data interpretation.
 
 ### User Interaction and Filtering
 
-Interactive elements allow users to filter by user and perform wildcard searches by post title.
+Interactive elements allow users to filter posts by user and perform searches by post or user information.
 
 ### CRUD Operations and Data Management
 
